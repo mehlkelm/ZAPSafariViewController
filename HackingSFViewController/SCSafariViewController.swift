@@ -32,7 +32,7 @@ public class SCSafariViewController: SFSafariViewController, UIViewControllerTra
         self.animator.percentageDriven = true
         let recognizerPoint = recognizer.locationInView(presentingView)
         let percentComplete = recognizerPoint.x / presentingView.bounds.size.width
-        print(percentComplete)
+
         switch recognizer.state {
         case .Began: dismissViewControllerAnimated(true, completion: nil)
         case .Changed: animator.updateInteractiveTransition(percentComplete > 0.99 ? 0.99 : percentComplete)
