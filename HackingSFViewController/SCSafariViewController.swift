@@ -9,7 +9,54 @@
 import UIKit
 import SafariServices
 
-class SCSafariViewController: SFSafariViewController {
+public class SCSafariViewController: SFSafariViewController, UIViewControllerTransitioningDelegate {
+    let animator = SCModalPushPopAnimator()
+    private var _edgeView: UIView?
+    
+    public override init(URL: NSURL, entersReaderIfAvailable: Bool) {
+        super.init(URL: URL, entersReaderIfAvailable: entersReaderIfAvailable)
+        self.transitioningDelegate = self
+    }
+    
+    public override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        let recognizer = UIScreenEdgePanGestureRecognizer(target: self, action: "handleGesture:")
+        recognizer.edges = UIRectEdge.Left
+        self.edgeView?.addGestureRecognizer(recognizer)
+    }
+    
+    func handleGesture(recognizer:UIScreenEdgePanGestureRecognizer) {
+        guard let presentingView = self.presentingViewController?.view else {
+            return
+        }
+        self.animator.percentageDriven = true
+        let recognizerPoint = recognizer.locationInView(presentingView)
+        let percentComplete = recognizerPoint.x / presentingView.bounds.size.width
+        print(percentComplete)
+        switch recognizer.state {
+        case .Began: dismissViewControllerAnimated(true, completion: nil)
+        case .Changed: animator.updateInteractiveTransition(percentComplete > 0.99 ? 0.99 : percentComplete)
+        case .Ended, .Cancelled:
+            (recognizer.velocityInView(view).x < 0) ? animator.cancelInteractiveTransition() : animator.finishInteractiveTransition()
+            self.animator.percentageDriven = false
+        default: ()
+        }
+    }
+        
+    public func animationControllerForPresentedController(presented: UIViewController, presentingController presenting: UIViewController, sourceController source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        self.animator.dismissing = false
+        return self.animator
+    }
+    
+    public func animationControllerForDismissedController(dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        self.animator.dismissing = true
+        return self.animator
+    }
+    
+    public func interactionControllerForDismissal(animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+        return self.animator.percentageDriven ? self.animator : nil
+    }
+    
     var edgeView: UIView? {
         get {
             if (_edgeView == nil && isViewLoaded()) {
@@ -27,7 +74,4 @@ class SCSafariViewController: SFSafariViewController {
             return _edgeView
         }
     }
-    
-    private var _edgeView: UIView?
-    
 }
