@@ -36,7 +36,8 @@ class SCModalPushPopAnimator: UIPercentDrivenInteractiveTransition, UIViewContro
         topView.frame = fromViewController.view.frame
         topView.transform = dismissing ? CGAffineTransformIdentity : CGAffineTransformMakeTranslation(offset, 0)
         
-        UIView.animateWithDuration(transitionDuration(transitionContext), delay: 0.0, options: UIViewAnimationOptions.CurveEaseInOut, animations: {
+        let options = self.percentageDriven ? UIViewAnimationOptions.CurveLinear : UIViewAnimationOptions.CurveEaseOut
+        UIView.animateWithDuration(transitionDuration(transitionContext), delay: 0.0, options: options, animations: {
             topView.transform = self.dismissing ? CGAffineTransformMakeTranslation(offset, 0) : CGAffineTransformIdentity
             }, completion: { (finished) -> Void in
                 topView.transform = CGAffineTransformIdentity
