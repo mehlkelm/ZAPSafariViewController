@@ -22,7 +22,12 @@ public class SCSafariViewController: SFSafariViewController, UIViewControllerTra
         super.viewDidAppear(animated)
         let recognizer = UIScreenEdgePanGestureRecognizer(target: self, action: "handleGesture:")
         recognizer.edges = UIRectEdge.Left
-        self.edgeView?.addGestureRecognizer(recognizer)
+        if let edgeView = self.edgeView {
+            edgeView.addGestureRecognizer(recognizer)
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1 * NSEC_PER_SEC)), dispatch_get_main_queue()) {
+                self.view.bringSubviewToFront(edgeView)
+            }
+        }
     }
     
     func handleGesture(recognizer:UIScreenEdgePanGestureRecognizer) {
